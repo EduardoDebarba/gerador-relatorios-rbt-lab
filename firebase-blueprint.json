@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "GeneratedReport": {
+      "title": "GeneratedReport",
+      "description": "Metadata, metrics, and insights for an operational report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "periodStart": { "type": "string" },
+        "periodEnd": { "type": "string" },
+        "metrics": { "type": "object" },
+        "charts": { "type": "object" },
+        "insights": { "type": "object" },
+        "docxUrl": { "type": "string" },
+        "pdfUrl": { "type": "string" }
+      },
+      "required": ["id", "name", "description", "createdAt", "periodStart", "periodEnd", "metrics", "charts", "insights"]
+    },
+    "RecordsChunk": {
+      "title": "RecordsChunk",
+      "description": "A chunk of raw operational report records stored together for storage optimization",
+      "type": "object",
+      "properties": {
+        "data": { "type": "array" }
+      },
+      "required": ["data"]
+    }
+  },
+  "firestore": {
+    "/reports/{reportId}": {
+      "schema": "GeneratedReport",
+      "description": "Main document for each generated technical report"
+    },
+    "/reports/{reportId}/records/{chunkId}": {
+      "schema": "RecordsChunk",
+      "description": "Subcollection storing chunked raw records for excel export"
+    }
+  }
+}

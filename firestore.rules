@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /reports/{reportId} {
+      allow read, write: if true;
+      
+      match /records/{chunkId} {
+        allow read, write: if true;
+      }
+    }
+  }
+}

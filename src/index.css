@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Custom scrollbars and report page simulation styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Print/A4 layout simulation styling for PDF Preview mode */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  margin: 10px auto;
+  background: white;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Print-only Container: Render off-screen with fixed A4 width so Recharts SVGs/charts can measure their dimensions correctly on screen mount. Then display during printing. */
+.print-only-container {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 210mm !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+@media print {
+  /* Ensure browser prints all background graphics and colors exactly */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Override layout constraints to allow natural multi-page flow */
+  html, body, #root, [class*="h-screen"], [class*="w-screen"], [class*="overflow-hidden"], main, .flex-1 {
+    height: auto !important;
+    width: auto !important;
+    overflow: visible !important;
+    position: static !important;
+    background: white !important;
+    color: #0f172a !important; /* Force dark text for readability */
+  }
+
+  /* Force light background on A4 pages, but preserve inner element background colors */
+  .a4-page {
+    background-color: white !important;
+    color: #0f172a !important;
+  }
+
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .no-print, .print\:hidden {
+    display: none !important;
+  }
+
+  /* Make sure each page simulates a physical A4 sheet with strict dimensions and margins */
+  .a4-page {
+    margin: 0 !important;
+    padding: 20mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+    break-after: page !important;
+    break-inside: avoid !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .print-only-container {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+}

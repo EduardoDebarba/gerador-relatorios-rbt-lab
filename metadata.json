@@ -1,0 +1,6 @@
+{
+  "name": "Gerador de Relatórios Laboratório",
+  "description": "Gerador automático de relatórios em PDF a partir de dados operacionais CSV para o laboratório.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
