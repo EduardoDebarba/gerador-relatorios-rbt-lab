@@ -883,9 +883,8 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                   <thead>
                     <tr className="bg-[#0F2D59] text-white">
                       <th className="p-2 font-bold">Cidade</th>
-                      <th className="p-2 text-center font-bold">Equip.</th>
+                      <th className="p-2 text-center font-bold">Equip. (Reap + RMA)</th>
                       <th className="p-2 text-center font-bold">Reap.</th>
-                      <th className="p-2 text-center font-bold">Descarte</th>
                       <th className="p-2 text-center font-bold">RMA</th>
                       <th className="p-2 text-center font-bold">Taxa Resol.</th>
                     </tr>
@@ -896,7 +895,6 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                         <td className="p-2 font-semibold text-slate-700">{c.cidade}</td>
                         <td className="p-2 text-center font-mono text-slate-600">{c.equip}</td>
                         <td className="p-2 text-center font-mono text-slate-600">{c.reap}</td>
-                        <td className="p-2 text-center font-mono text-slate-600">{c.descarte}</td>
                         <td className="p-2 text-center font-mono text-slate-600">{c.rma}</td>
                         <td className="p-2 text-center font-bold text-slate-800">{c.taxaResol}%</td>
                       </tr>
@@ -924,7 +922,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
               <h2 className="text-2xl font-display font-bold text-[#0F2D59] mb-4">8. Desempenho por Equipe</h2>
 
               {/* Column Chart */}
-              <h3 className="text-xs font-display font-bold text-[#0F2D59] text-center mb-2">Equipamentos Analisados por Equipe</h3>
+              <h3 className="text-xs font-display font-bold text-[#0F2D59] text-center mb-2">Equipamentos Analisados por Equipe (Reaproveitamento e RMA)</h3>
               <div className="h-44 w-full mb-6 text-[8px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -948,9 +946,8 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                   <thead>
                     <tr className="bg-[#0F2D59] text-white">
                       <th className="p-1.5 font-bold">Equipe</th>
-                      <th className="p-1.5 text-center font-bold">Equip.</th>
+                      <th className="p-1.5 text-center font-bold">Equip. (Reap + RMA)</th>
                       <th className="p-1.5 text-center font-bold">Reap.</th>
-                      <th className="p-1.5 text-center font-bold">Descarte</th>
                       <th className="p-1.5 text-center font-bold">RMA</th>
                       <th className="p-1.5 text-center font-bold">Taxa Resol.</th>
                     </tr>
@@ -961,7 +958,6 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                         <td className="p-1.5 font-semibold text-slate-700">{eq.equipe}</td>
                         <td className="p-1.5 text-center font-mono text-slate-600">{eq.equip}</td>
                         <td className="p-1.5 text-center font-mono text-slate-600">{eq.reap}</td>
-                        <td className="p-1.5 text-center font-mono text-slate-600">{eq.descarte}</td>
                         <td className="p-1.5 text-center font-mono text-slate-600">{eq.rma}</td>
                         <td className="p-1.5 text-center font-bold text-slate-800">{eq.taxaResol}%</td>
                       </tr>

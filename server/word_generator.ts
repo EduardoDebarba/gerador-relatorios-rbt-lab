@@ -407,9 +407,8 @@ export async function generateWordReport(
               new TableRow({
                 children: [
                   createStyledCell('Cidade', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF' }),
-                  createStyledCell('Equipamentos', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
+                  createStyledCell('Equipamentos (Reap + RMA)', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                   createStyledCell('Reaproveitados', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
-                  createStyledCell('Descartes', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                   createStyledCell('RMA', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                   createStyledCell('% Resol.', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                 ],
@@ -419,7 +418,6 @@ export async function generateWordReport(
                   createStyledCell(c.cidade),
                   createStyledCell(c.equip.toString(), { align: AlignmentType.CENTER }),
                   createStyledCell(c.reap.toString(), { align: AlignmentType.CENTER }),
-                  createStyledCell(c.descarte.toString(), { align: AlignmentType.CENTER }),
                   createStyledCell(c.rma.toString(), { align: AlignmentType.CENTER }),
                   createStyledCell(`${c.taxaResol}%`, { align: AlignmentType.CENTER }),
                 ],
@@ -434,7 +432,7 @@ export async function generateWordReport(
 
           // ================= PAGE 11: 8. DESEMPENHO POR EQUIPE =================
           createHeading('8. Desempenho por Equipe', HeadingLevel.HEADING_1),
-          createParagraph('Relação de equipamentos processados por equipe técnica de recolhimento de campo:', { spacing: { after: 180 } }),
+          createParagraph('Relação de equipamentos processados por equipe técnica de recolhimento de campo (Reaproveitamento e RMA):', { spacing: { after: 180 } }),
 
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
@@ -442,9 +440,9 @@ export async function generateWordReport(
               new TableRow({
                 children: [
                   createStyledCell('Equipe', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF' }),
-                  createStyledCell('Equip. Processados', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
+                  createStyledCell('Equip. Processados (Reap + RMA)', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                   createStyledCell('Reaproveitados', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
-                  createStyledCell('RMA / Descarte', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
+                  createStyledCell('RMA', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                   createStyledCell('% Resolução', { bold: true, bg: COLOR_PRIMARY, color: 'FFFFFF', align: AlignmentType.CENTER }),
                 ],
               }),
@@ -453,7 +451,7 @@ export async function generateWordReport(
                   createStyledCell(eq.equipe),
                   createStyledCell(eq.equip.toString(), { align: AlignmentType.CENTER }),
                   createStyledCell(eq.reap.toString(), { align: AlignmentType.CENTER }),
-                  createStyledCell((eq.descarte + eq.rma).toString(), { align: AlignmentType.CENTER }),
+                  createStyledCell(eq.rma.toString(), { align: AlignmentType.CENTER }),
                   createStyledCell(`${eq.taxaResol}%`, { align: AlignmentType.CENTER }),
                 ],
               })),

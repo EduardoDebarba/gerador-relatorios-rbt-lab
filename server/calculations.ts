@@ -202,21 +202,22 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     }
   });
 
-  // Cities statistics (excluding Descarte to ensure realistic resolution rate)
+  // Cities statistics (only Reaproveitado and RMA)
   const cityStats: { [key: string]: { total: number; descarte: number; rma: number; reap: number; eligible: number } } = {};
   records.forEach(r => {
     if (!cityStats[r.cidade]) {
       cityStats[r.cidade] = { total: 0, descarte: 0, rma: 0, reap: 0, eligible: 0 };
     }
-    if (r.destino !== 'Descarte') {
+    const isReap = r.destino === 'Reaproveitado' || r.destino?.toLowerCase()?.trim() === 'reaproveitado';
+    const isRma = r.destino === 'RMA' || r.destino?.toLowerCase()?.trim() === 'rma';
+    if (isReap || isRma) {
       cityStats[r.cidade].total += r.qtd;
-      if (r.destino === 'RMA') {
+      cityStats[r.cidade].eligible += r.qtd;
+      if (isRma) {
         cityStats[r.cidade].rma += r.qtd;
-        cityStats[r.cidade].eligible += r.qtd;
       }
-      if (r.destino === 'Reaproveitado') {
+      if (isReap) {
         cityStats[r.cidade].reap += r.qtd;
-        cityStats[r.cidade].eligible += r.qtd;
       }
     }
   });
@@ -233,10 +234,12 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     }
   });
 
-  // Teams statistics (excluding Descarte)
+  // Teams statistics (only Reaproveitado and RMA)
   const teamStats: { [key: string]: number } = {};
   records.forEach(r => {
-    if (r.destino !== 'Descarte') {
+    const isReap = r.destino === 'Reaproveitado' || r.destino?.toLowerCase()?.trim() === 'reaproveitado';
+    const isRma = r.destino === 'RMA' || r.destino?.toLowerCase()?.trim() === 'rma';
+    if (isReap || isRma) {
       teamStats[r.equipe] = (teamStats[r.equipe] || 0) + r.qtd;
     }
   });
@@ -451,21 +454,22 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     .filter(item => item.equip > 0)
     .sort((a, b) => b.equip - a.equip);
 
-  // Equipe Destino Table (excluding Descarte)
+  // Equipe Destino Table (only Reaproveitado and RMA)
   const teamDestMap: { [team: string]: { total: number; descarte: number; rma: number; reap: number; eligible: number } } = {};
   records.forEach(r => {
     if (!teamDestMap[r.equipe]) {
       teamDestMap[r.equipe] = { total: 0, descarte: 0, rma: 0, reap: 0, eligible: 0 };
     }
-    if (r.destino !== 'Descarte') {
+    const isReap = r.destino === 'Reaproveitado' || r.destino?.toLowerCase()?.trim() === 'reaproveitado';
+    const isRma = r.destino === 'RMA' || r.destino?.toLowerCase()?.trim() === 'rma';
+    if (isReap || isRma) {
       teamDestMap[r.equipe].total += r.qtd;
-      if (r.destino === 'RMA') {
+      teamDestMap[r.equipe].eligible += r.qtd;
+      if (isRma) {
         teamDestMap[r.equipe].rma += r.qtd;
-        teamDestMap[r.equipe].eligible += r.qtd;
       }
-      if (r.destino === 'Reaproveitado') {
+      if (isReap) {
         teamDestMap[r.equipe].reap += r.qtd;
-        teamDestMap[r.equipe].eligible += r.qtd;
       }
     }
   });
