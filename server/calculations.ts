@@ -202,16 +202,23 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     }
   });
 
-  // Cities statistics
-  const cityStats: { [key: string]: { total: number; descarte: number; rma: number; reap: number } } = {};
+  // Cities statistics (excluding Descarte to ensure realistic resolution rate)
+  const cityStats: { [key: string]: { total: number; descarte: number; rma: number; reap: number; eligible: number } } = {};
   records.forEach(r => {
     if (!cityStats[r.cidade]) {
-      cityStats[r.cidade] = { total: 0, descarte: 0, rma: 0, reap: 0 };
+      cityStats[r.cidade] = { total: 0, descarte: 0, rma: 0, reap: 0, eligible: 0 };
     }
-    cityStats[r.cidade].total += r.qtd;
-    if (r.destino === 'Descarte') cityStats[r.cidade].descarte += r.qtd;
-    if (r.destino === 'RMA') cityStats[r.cidade].rma += r.qtd;
-    if (r.destino === 'Reaproveitado') cityStats[r.cidade].reap += r.qtd;
+    if (r.destino !== 'Descarte') {
+      cityStats[r.cidade].total += r.qtd;
+      if (r.destino === 'RMA') {
+        cityStats[r.cidade].rma += r.qtd;
+        cityStats[r.cidade].eligible += r.qtd;
+      }
+      if (r.destino === 'Reaproveitado') {
+        cityStats[r.cidade].reap += r.qtd;
+        cityStats[r.cidade].eligible += r.qtd;
+      }
+    }
   });
 
   let cidadeCritica = '';
@@ -423,12 +430,12 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     .filter(item => item.qtd > 0 && item.name && item.name.toLowerCase() !== 'não informado' && item.name.toLowerCase() !== 'nao informado')
     .sort((a, b) => b.qtd - a.qtd);
 
-  // Cidade Destino Table
+  // Cidade Destino Table (excluding Descarte)
   const cidadeDestino = Object.keys(cityStats)
     .filter(c => c && c.trim() !== '' && c.toLowerCase() !== 'não informado' && c.toLowerCase() !== 'nao informado')
     .map(c => {
       const s = cityStats[c];
-      const rate = s.total > 0 ? (s.reap / s.total) * 100 : 0;
+      const rate = s.eligible > 0 ? (s.reap / s.eligible) * 100 : (s.total > 0 ? (s.reap / s.total) * 100 : 0);
       return {
         cidade: c,
         equip: s.total,
