@@ -233,10 +233,12 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     }
   });
 
-  // Teams statistics
+  // Teams statistics (excluding Descarte)
   const teamStats: { [key: string]: number } = {};
   records.forEach(r => {
-    teamStats[r.equipe] = (teamStats[r.equipe] || 0) + r.qtd;
+    if (r.destino !== 'Descarte') {
+      teamStats[r.equipe] = (teamStats[r.equipe] || 0) + r.qtd;
+    }
   });
 
   let equipeMaisProdutiva = '';
@@ -449,23 +451,30 @@ export function performCalculations(records: ReportRecord[]): { metrics: Executi
     .filter(item => item.equip > 0)
     .sort((a, b) => b.equip - a.equip);
 
-  // Equipe Destino Table
-  const teamDestMap: { [team: string]: { total: number; descarte: number; rma: number; reap: number } } = {};
+  // Equipe Destino Table (excluding Descarte)
+  const teamDestMap: { [team: string]: { total: number; descarte: number; rma: number; reap: number; eligible: number } } = {};
   records.forEach(r => {
     if (!teamDestMap[r.equipe]) {
-      teamDestMap[r.equipe] = { total: 0, descarte: 0, rma: 0, reap: 0 };
+      teamDestMap[r.equipe] = { total: 0, descarte: 0, rma: 0, reap: 0, eligible: 0 };
     }
-    teamDestMap[r.equipe].total += r.qtd;
-    if (r.destino === 'Descarte') teamDestMap[r.equipe].descarte += r.qtd;
-    if (r.destino === 'RMA') teamDestMap[r.equipe].rma += r.qtd;
-    if (r.destino === 'Reaproveitado') teamDestMap[r.equipe].reap += r.qtd;
+    if (r.destino !== 'Descarte') {
+      teamDestMap[r.equipe].total += r.qtd;
+      if (r.destino === 'RMA') {
+        teamDestMap[r.equipe].rma += r.qtd;
+        teamDestMap[r.equipe].eligible += r.qtd;
+      }
+      if (r.destino === 'Reaproveitado') {
+        teamDestMap[r.equipe].reap += r.qtd;
+        teamDestMap[r.equipe].eligible += r.qtd;
+      }
+    }
   });
 
   const equipeDestino = Object.keys(teamDestMap)
     .filter(eq => eq && eq.trim() !== '' && eq.toLowerCase() !== 'não informado' && eq.toLowerCase() !== 'nao informado')
     .map(eq => {
       const s = teamDestMap[eq];
-      const rate = s.total > 0 ? (s.reap / s.total) * 100 : 0;
+      const rate = s.eligible > 0 ? (s.reap / s.eligible) * 100 : (s.total > 0 ? (s.reap / s.total) * 100 : 0);
       return {
         equipe: eq,
         equip: s.total,
