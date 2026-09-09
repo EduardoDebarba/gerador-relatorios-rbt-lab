@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import UploadView from './components/UploadView.js';
 import HistoryView from './components/HistoryView.js';
 import PDFReportView from './components/PDFReportView.js';
+import CompareReportsView from './components/CompareReportsView.js';
 import { GeneratedReport, CSVPreview, ImportError } from './types.js';
 import { ChevronLeft, Download, Printer, Sun, Moon } from 'lucide-react';
 import { saveReportFirestore, getReportsFirestore, deleteReportFirestore } from './lib/firebase.js';
@@ -23,10 +24,22 @@ export default function App() {
     });
   };
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   const [reports, setReports] = useState<GeneratedReport[]>([]);
   const [activeReport, setActiveReport] = useState<GeneratedReport | null>(null);
   const [autoPrintActive, setAutoPrintActive] = useState<boolean>(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  
+  // Navigation & Comparison state
+  const [activeTab, setActiveTab] = useState<'main' | 'compare'>('main');
+  const [compareSelection, setCompareSelection] = useState<{ reportAId?: string; reportBId?: string } | null>(null);
 
   const isIframe = typeof window !== 'undefined' && window.self !== window.top;
 
@@ -185,10 +198,10 @@ export default function App() {
       )}
 
       {/* Top Navigation Header styled like RBT Lab screenshot */}
-      <header className={`${darkMode ? 'bg-[#111827] border-b border-slate-800' : 'bg-[#1E293B] text-white'} py-4 shadow-md print:hidden transition-colors duration-300`}>
-        <div className="max-w-5xl mx-auto px-6 flex justify-between items-center">
+      <header className={`${darkMode ? 'bg-[#111827] border-b border-slate-800' : 'bg-[#1E293B] text-white'} py-3.5 shadow-md print:hidden transition-colors duration-300`}>
+        <div className={`${activeTab === 'compare' ? 'max-w-7xl px-4 sm:px-6' : 'max-w-5xl px-6'} mx-auto flex justify-between items-center gap-4 transition-all duration-300`}>
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="RBT Internet Logo" className="h-10 w-10 object-contain" />
+            <img src="/logo.png" alt="RBT Internet Logo" className="h-9 w-9 object-contain" />
             <div className="flex flex-col">
               <span className="text-sm font-black text-white tracking-wide uppercase">RBT Lab</span>
               <span className="text-[10px] text-slate-300 font-semibold tracking-wider uppercase">
@@ -211,32 +224,47 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Single-Page Content Area */}
-      <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10 print:hidden">
-
-        {/* Upload Form View */}
-        <div className="w-full">
-          <UploadView
-            onValidate={handleValidate}
-            onGenerate={handleGenerate}
-            darkMode={darkMode}
-          />
-        </div>
-
-        {/* Separator */}
-        <div className={`border-t my-2 ${darkMode ? 'border-slate-800/80' : 'border-slate-200'}`}></div>
-
-        {/* Reports History List View */}
-        <div className="w-full">
-          <HistoryView
+      {/* Main Content Area */}
+      {activeTab === 'compare' ? (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 print:hidden">
+          <CompareReportsView
             reports={reports}
-            onSelect={handleSelectReportFromHistory}
-            onDelete={handleDeleteReport}
             darkMode={darkMode}
+            initialReportAId={compareSelection?.reportAId}
+            initialReportBId={compareSelection?.reportBId}
+            onClose={() => setActiveTab('main')}
+            onSelectSingleReport={(report) => setActiveReport(report)}
           />
         </div>
+      ) : (
+        <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10 print:hidden">
+          {/* Upload Form View */}
+          <div className="w-full">
+            <UploadView
+              onValidate={handleValidate}
+              onGenerate={handleGenerate}
+              darkMode={darkMode}
+            />
+          </div>
 
-      </div>
+          {/* Separator */}
+          <div className={`border-t my-2 ${darkMode ? 'border-slate-800/80' : 'border-slate-200'}`}></div>
+
+          {/* Reports History List View */}
+          <div className="w-full">
+            <HistoryView
+              reports={reports}
+              onSelect={handleSelectReportFromHistory}
+              onDelete={handleDeleteReport}
+              onCompare={(reportAId, reportBId) => {
+                setCompareSelection({ reportAId, reportBId });
+                setActiveTab('compare');
+              }}
+              darkMode={darkMode}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Full-screen overlay to display PDFReportView with an elegant close button */}
       {activeReport && (

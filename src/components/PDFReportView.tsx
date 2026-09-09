@@ -25,12 +25,26 @@ interface PDFReportViewProps {
   report: GeneratedReport;
   darkMode: boolean;
   autoPrint?: boolean;
+  controlledPage?: number;
+  hideHeaderControls?: boolean;
+  viewModeOverride?: 'paged' | 'full';
+  fitScale?: number;
 }
 
-export default function PDFReportView({ report, darkMode, autoPrint }: PDFReportViewProps) {
+export default function PDFReportView({ 
+  report, 
+  darkMode, 
+  autoPrint,
+  controlledPage,
+  hideHeaderControls = false,
+  viewModeOverride,
+  fitScale,
+}: PDFReportViewProps) {
   const [activePageView, setActivePageView] = useState<'paged' | 'full'>(autoPrint ? 'full' : 'paged');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const totalPages = 18;
+  const activePage = controlledPage !== undefined ? controlledPage : currentPage;
+  const effectiveViewMode = viewModeOverride || activePageView;
 
   const metrics = report.metrics;
   const charts = report.charts;
@@ -359,7 +373,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" />
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                     <Area type="monotone" dataKey="qtd" stroke="#0F2D59" fill="#0F2D59" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} dot={{ r: 4, fill: '#0F2D59', stroke: '#0F2D59', strokeWidth: 1 }}>
                       <LabelList dataKey="qtd" position="top" style={{ fontSize: 9, fontWeight: 'bold', fill: '#0F2D59' }} />
                     </Area>
@@ -375,7 +389,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="date" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" />
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                     <Area type="monotone" dataKey="qtd" stroke="#0284C7" fill="#0284C7" fillOpacity={0.1} strokeWidth={2} isAnimationActive={false} dot={{ r: 2.5, fill: '#0284C7', stroke: '#0284C7', strokeWidth: 1 }}>
                       <LabelList dataKey="qtd" position="top" style={{ fontSize: 7, fontWeight: 'bold', fill: '#0284C7' }} />
                     </Area>
@@ -402,7 +416,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="month" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" />
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                     <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
                     <Bar dataKey="Descarte" fill="#EF4444" isAnimationActive={false}>
                       <LabelList dataKey="Descarte" position="top" style={{ fontSize: 7, fontWeight: 'bold', fill: '#EF4444' }} formatter={(v: number) => v > 0 ? v : ''} />
@@ -458,7 +472,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                         return <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />;
                       })}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -585,7 +599,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis type="number" stroke="#94a3b8" />
                     <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                     <Bar dataKey="qtd" fill="#0F2D59" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                       <LabelList dataKey="qtd" position="right" style={{ fontSize: 10, fontWeight: 'bold', fill: '#1e293b' }} />
                     </Bar>
@@ -619,7 +633,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" domain={[0, 100]} />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="percentage" fill="#F59E0B" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="percentage" position="right" formatter={(val: number) => `${val}%`} style={{ fontSize: 9, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -646,7 +660,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" domain={[0, 100]} />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="percentage" fill="#EF4444" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="percentage" position="right" formatter={(val: number) => `${val}%`} style={{ fontSize: 9, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -684,7 +698,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" domain={[0, 100]} />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="percentage" fill="#10B981" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="percentage" position="right" formatter={(val: number) => `${val}%`} style={{ fontSize: 9, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -730,7 +744,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="qtd" fill="#0F2D59" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="qtd" position="right" style={{ fontSize: 10, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -757,7 +771,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="qtd" fill="#0F2D59" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="qtd" position="right" style={{ fontSize: 10, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -796,7 +810,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="qtd" fill="#EF4444" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="qtd" position="right" style={{ fontSize: 10, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -823,7 +837,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                       <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis type="number" stroke="#94a3b8" />
                       <YAxis dataKey="name" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                      <Tooltip />
+                      <Tooltip cursor={false} />
                       <Bar dataKey="qtd" fill="#EF4444" radius={[0, 4, 4, 0]} isAnimationActive={false}>
                         <LabelList dataKey="qtd" position="right" style={{ fontSize: 10, fontWeight: 'bold', fill: '#1e293b' }} />
                       </Bar>
@@ -866,7 +880,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis type="number" stroke="#94a3b8" />
                     <YAxis dataKey="cidade" type="category" stroke="#94a3b8" width={120} tick={{ fontSize: 10, fontWeight: 500 }} />
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                     <Bar dataKey="reap" name="Reaproveitado" fill="#10B981" stackId="a" isAnimationActive={false}>
                       <LabelList dataKey="reap" position="inside" style={{ fontSize: 9, fontWeight: 'bold', fill: '#ffffff' }} formatter={(val: number) => val > 0 ? val : ''} />
                     </Bar>
@@ -932,7 +946,7 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                     <XAxis dataKey="equipe" stroke="#94a3b8" />
                     <YAxis stroke="#94a3b8" />
-                    <Tooltip />
+                    <Tooltip cursor={false} />
                     <Bar dataKey="equip" fill="#0F2D59" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                       <LabelList dataKey="equip" position="top" style={{ fontSize: 9, fontWeight: 'bold', fill: '#0F2D59' }} />
                     </Bar>
@@ -1176,110 +1190,165 @@ export default function PDFReportView({ report, darkMode, autoPrint }: PDFReport
   return (
     <div className="flex-1 flex flex-col bg-[#EEF2F7] dark:bg-[#0F172A] overflow-hidden font-sans">
       {/* Top action bar */}
-      <div className="no-print print:hidden h-16 shrink-0 bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between shadow-sm z-10">
-        <div className="flex items-center gap-4">
-          <h2 className="font-display font-bold text-sm text-slate-800 dark:text-slate-200 truncate max-w-sm">
-            {report.name}
-          </h2>
-          <span className="text-xs text-slate-400">
-            {report.periodStart} - {report.periodEnd}
-          </span>
-        </div>
-
-        {/* View selection controls & actions */}
-        <div className="flex items-center gap-3">
-          <div className="bg-slate-100 dark:bg-[#0F172A] p-1 rounded-lg flex items-center gap-1 text-xs">
-            <button
-              onClick={() => setActivePageView('paged')}
-              className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                activePageView === 'paged'
-                  ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              Paginado (A4)
-            </button>
-            <button
-              onClick={() => setActivePageView('full')}
-              className={`px-3 py-1.5 rounded-md font-medium transition-all ${
-                activePageView === 'full'
-                  ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
-            >
-              Documento Inteiro
-            </button>
+      {!hideHeaderControls && (
+        <div className="no-print print:hidden h-16 shrink-0 bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between shadow-sm z-10">
+          <div className="flex items-center gap-4">
+            <h2 className="font-display font-bold text-sm text-slate-800 dark:text-slate-200 truncate max-w-sm">
+              {report.name}
+            </h2>
+            <span className="text-xs text-slate-400">
+              {report.periodStart} - {report.periodEnd}
+            </span>
           </div>
 
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-1.5 py-2 px-3 text-xs bg-[#0F2D59] text-white hover:bg-slate-800 font-semibold rounded-lg shadow transition-colors"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            Imprimir / PDF
-          </button>
+          {/* View selection controls & actions */}
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-100 dark:bg-[#0F172A] p-1 rounded-lg flex items-center gap-1 text-xs">
+              <button
+                onClick={() => setActivePageView('paged')}
+                className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                  activePageView === 'paged'
+                    ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                Paginado (A4)
+              </button>
+              <button
+                onClick={() => setActivePageView('full')}
+                className={`px-3 py-1.5 rounded-md font-medium transition-all ${
+                  activePageView === 'full'
+                    ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                Documento Inteiro
+              </button>
+            </div>
+
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 py-2 px-3 text-xs bg-[#0F2D59] text-white hover:bg-slate-800 font-semibold rounded-lg shadow transition-colors"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              Imprimir / PDF
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main viewport (visible on screen, hidden on print) */}
-      <div className="flex-1 overflow-y-auto p-6 flex flex-col justify-start print:hidden">
-        {activePageView === 'paged' ? (
+      <div className={`flex-1 flex flex-col justify-start print:hidden ${hideHeaderControls ? 'p-0 overflow-visible' : 'p-6 overflow-y-auto'}`}>
+        {effectiveViewMode === 'paged' ? (
           /* SINGLE PAGE PAGINATED PREVIEW */
-          <div className="flex flex-col items-center justify-center gap-6 py-6">
+          <div className={`flex flex-col items-center justify-center ${hideHeaderControls ? 'py-1 w-full' : 'gap-6 py-6'}`}>
             {/* Pagination Controls - TOP */}
-            <div className="no-print bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl flex items-center justify-between w-full max-w-sm shadow-md text-xs">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="font-bold text-slate-700 dark:text-slate-300">
-                Página {currentPage} de {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            {!hideHeaderControls && controlledPage === undefined && (
+              <div className="no-print bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl flex items-center justify-between w-full max-w-sm shadow-md text-xs">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="font-bold text-slate-700 dark:text-slate-300">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
 
             {/* Page container */}
-            <div className="a4-page relative flex flex-col justify-between shrink-0 select-none">
-              {renderPageContent(currentPage)}
-            </div>
+            {fitScale ? (
+              <div
+                style={{
+                  width: `${Math.round(794 * fitScale)}px`,
+                  height: `${Math.round(1123 * fitScale)}px`,
+                }}
+                className="relative shrink-0 overflow-hidden shadow-md rounded-sm bg-white"
+              >
+                <div
+                  className="a4-page relative flex flex-col justify-between shrink-0 select-none"
+                  style={{
+                    width: '794px',
+                    minHeight: '1123px',
+                    height: '1123px',
+                    margin: 0,
+                    transform: `scale(${fitScale})`,
+                    transformOrigin: 'top left',
+                  }}
+                >
+                  {renderPageContent(activePage)}
+                </div>
+              </div>
+            ) : (
+              <div className="a4-page relative flex flex-col justify-between shrink-0 select-none">
+                {renderPageContent(activePage)}
+              </div>
+            )}
 
             {/* Pagination Controls - BOTTOM */}
-            <div className="no-print bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl flex items-center justify-between w-full max-w-sm shadow-md text-xs">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <span className="font-bold text-slate-700 dark:text-slate-300">
-                Página {currentPage} de {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+            {!hideHeaderControls && controlledPage === undefined && (
+              <div className="no-print bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl flex items-center justify-between w-full max-w-sm shadow-md text-xs">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="font-bold text-slate-700 dark:text-slate-300">
+                  Página {currentPage} de {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-300 disabled:opacity-30 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           /* CONTINUOUS MULTI-PAGE FLOW VIEW (PERFECT FOR PRINTING SCREEN VIEW) */
-          <div className="flex flex-col items-center gap-10 py-6">
+          <div className="flex flex-col items-center gap-6 py-2 w-full">
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <div key={pageNum} className="a4-page relative flex flex-col justify-between shrink-0 break-after-page">
-                {renderPageContent(pageNum)}
-              </div>
+              fitScale ? (
+                <div
+                  key={pageNum}
+                  style={{
+                    width: `${Math.round(794 * fitScale)}px`,
+                    height: `${Math.round(1123 * fitScale)}px`,
+                  }}
+                  className="relative shrink-0 overflow-hidden shadow-lg rounded-sm bg-white border border-slate-200 dark:border-slate-700"
+                >
+                  <div
+                    className="a4-page relative flex flex-col justify-between shrink-0 break-after-page"
+                    style={{
+                      width: '794px',
+                      minHeight: '1123px',
+                      height: '1123px',
+                      margin: 0,
+                      transform: `scale(${fitScale})`,
+                      transformOrigin: 'top left',
+                    }}
+                  >
+                    {renderPageContent(pageNum)}
+                  </div>
+                </div>
+              ) : (
+                <div key={pageNum} className="a4-page relative flex flex-col justify-between shrink-0 break-after-page">
+                  {renderPageContent(pageNum)}
+                </div>
+              )
             ))}
           </div>
         )}
