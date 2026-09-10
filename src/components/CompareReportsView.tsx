@@ -20,12 +20,13 @@ import {
   Box,
   MapPin,
   Users,
-  Award,
   Sparkles,
   RefreshCw,
   SlidersHorizontal,
   Maximize2,
   Minimize2,
+  Trash2,
+  Wrench,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -396,6 +397,207 @@ export default function CompareReportsView({
     },
   ];
 
+  // Helper to align defect reasons for comparison
+  const alignedDefeitos = useMemo(() => {
+    const mapA: { [key: string]: { name: string; qtd: number } } = {};
+    [...(reportA?.charts?.defeitosOutros || []), ...(reportA?.charts?.defeitosAntenas || [])].forEach((item) => {
+      if (!item.name || item.qtd <= 0) return;
+      const key = item.name.toLowerCase().trim();
+      if (!mapA[key]) mapA[key] = { name: item.name, qtd: 0 };
+      mapA[key].qtd += item.qtd;
+    });
+
+    const mapB: { [key: string]: { name: string; qtd: number } } = {};
+    [...(reportB?.charts?.defeitosOutros || []), ...(reportB?.charts?.defeitosAntenas || [])].forEach((item) => {
+      if (!item.name || item.qtd <= 0) return;
+      const key = item.name.toLowerCase().trim();
+      if (!mapB[key]) mapB[key] = { name: item.name, qtd: 0 };
+      mapB[key].qtd += item.qtd;
+    });
+
+    const topA = Object.values(mapA).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
+    const topB = Object.values(mapB).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
+
+    const unionKeys = new Set<string>();
+    topA.forEach((item) => unionKeys.add(item.name.toLowerCase().trim()));
+    topB.forEach((item) => unionKeys.add(item.name.toLowerCase().trim()));
+
+    const items = Array.from(unionKeys).map((key) => {
+      const itemA = mapA[key];
+      const itemB = mapB[key];
+      const displayName = itemA?.name || itemB?.name || key;
+      const countA = itemA?.qtd || 0;
+      const countB = itemB?.qtd || 0;
+      return {
+        key,
+        name: displayName,
+        countA,
+        countB,
+        total: countA + countB,
+        bothPresent: countA > 0 && countB > 0,
+      };
+    });
+
+    return items.sort((a, b) => {
+      if (a.bothPresent !== b.bothPresent) return a.bothPresent ? -1 : 1;
+      return b.total - a.total;
+    });
+  }, [reportA, reportB]);
+
+  // Helper to align discard reasons for comparison
+  const alignedDescartes = useMemo(() => {
+    const mapA: { [key: string]: { name: string; qtd: number } } = {};
+    [...(reportA?.charts?.descarteOutros || []), ...(reportA?.charts?.descarteAntenas || [])].forEach((item) => {
+      if (!item.name || item.qtd <= 0) return;
+      const key = item.name.toLowerCase().trim();
+      if (!mapA[key]) mapA[key] = { name: item.name, qtd: 0 };
+      mapA[key].qtd += item.qtd;
+    });
+
+    const mapB: { [key: string]: { name: string; qtd: number } } = {};
+    [...(reportB?.charts?.descarteOutros || []), ...(reportB?.charts?.descarteAntenas || [])].forEach((item) => {
+      if (!item.name || item.qtd <= 0) return;
+      const key = item.name.toLowerCase().trim();
+      if (!mapB[key]) mapB[key] = { name: item.name, qtd: 0 };
+      mapB[key].qtd += item.qtd;
+    });
+
+    const topA = Object.values(mapA).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
+    const topB = Object.values(mapB).sort((a, b) => b.qtd - a.qtd).slice(0, 5);
+
+    const unionKeys = new Set<string>();
+    topA.forEach((item) => unionKeys.add(item.name.toLowerCase().trim()));
+    topB.forEach((item) => unionKeys.add(item.name.toLowerCase().trim()));
+
+    const items = Array.from(unionKeys).map((key) => {
+      const itemA = mapA[key];
+      const itemB = mapB[key];
+      const displayName = itemA?.name || itemB?.name || key;
+      const countA = itemA?.qtd || 0;
+      const countB = itemB?.qtd || 0;
+      return {
+        key,
+        name: displayName,
+        countA,
+        countB,
+        total: countA + countB,
+        bothPresent: countA > 0 && countB > 0,
+      };
+    });
+
+    return items.sort((a, b) => {
+      if (a.bothPresent !== b.bothPresent) return a.bothPresent ? -1 : 1;
+      return b.total - a.total;
+    });
+  }, [reportA, reportB]);
+
+  // Helper to align models for comparison
+  const alignedModelos = useMemo(() => {
+    const mapA: { [key: string]: { name: string; qtd: number } } = {};
+    (reportA?.charts?.top10Modelos || []).forEach((m) => {
+      const key = m.name.toLowerCase().trim();
+      mapA[key] = { name: m.name, qtd: m.qtd };
+    });
+
+    const mapB: { [key: string]: { name: string; qtd: number } } = {};
+    (reportB?.charts?.top10Modelos || []).forEach((m) => {
+      const key = m.name.toLowerCase().trim();
+      mapB[key] = { name: m.name, qtd: m.qtd };
+    });
+
+    const topA = (reportA?.charts?.top10Modelos || []).slice(0, 5);
+    const topB = (reportB?.charts?.top10Modelos || []).slice(0, 5);
+
+    const unionKeys = new Set<string>();
+    topA.forEach((m) => unionKeys.add(m.name.toLowerCase().trim()));
+    topB.forEach((m) => unionKeys.add(m.name.toLowerCase().trim()));
+
+    const items = Array.from(unionKeys).map((key) => {
+      const itemA = mapA[key];
+      const itemB = mapB[key];
+      const displayName = itemA?.name || itemB?.name || key;
+      const countA = itemA?.qtd || 0;
+      const countB = itemB?.qtd || 0;
+      return {
+        key,
+        name: displayName,
+        countA,
+        countB,
+        total: countA + countB,
+        bothPresent: countA > 0 && countB > 0,
+      };
+    });
+
+    return items.sort((a, b) => {
+      if (a.bothPresent !== b.bothPresent) return a.bothPresent ? -1 : 1;
+      return b.total - a.total;
+    });
+  }, [reportA, reportB]);
+
+  // Helper to align cities for comparison
+  const alignedCidades = useMemo(() => {
+    const mapA: { [key: string]: { cidade: string; equip: number; taxaResol: number } } = {};
+    (reportA?.charts?.cidadeDestino || []).forEach((c) => {
+      const key = c.cidade.toLowerCase().trim();
+      mapA[key] = { cidade: c.cidade, equip: c.equip, taxaResol: c.taxaResol };
+    });
+
+    const mapB: { [key: string]: { cidade: string; equip: number; taxaResol: number } } = {};
+    (reportB?.charts?.cidadeDestino || []).forEach((c) => {
+      const key = c.cidade.toLowerCase().trim();
+      mapB[key] = { cidade: c.cidade, equip: c.equip, taxaResol: c.taxaResol };
+    });
+
+    const topA = (reportA?.charts?.cidadeDestino || []).slice(0, 5);
+    const topB = (reportB?.charts?.cidadeDestino || []).slice(0, 5);
+
+    const unionKeys = new Set<string>();
+    topA.forEach((c) => unionKeys.add(c.cidade.toLowerCase().trim()));
+    topB.forEach((c) => unionKeys.add(c.cidade.toLowerCase().trim()));
+
+    const items = Array.from(unionKeys).map((key) => {
+      const itemA = mapA[key];
+      const itemB = mapB[key];
+      const displayName = itemA?.cidade || itemB?.cidade || key;
+      return {
+        key,
+        cidade: displayName,
+        itemA: itemA || null,
+        itemB: itemB || null,
+        total: (itemA?.equip || 0) + (itemB?.equip || 0),
+        bothPresent: !!itemA && !!itemB,
+      };
+    });
+
+    return items.sort((a, b) => {
+      if (a.bothPresent !== b.bothPresent) return a.bothPresent ? -1 : 1;
+      return b.total - a.total;
+    });
+  }, [reportA, reportB]);
+
+  // Top 5 equipes of each report/month
+  const topEquipesA = useMemo(() => {
+    const isValidTeam = (name?: string) => {
+      if (!name) return false;
+      const trimmed = name.trim().toLowerCase();
+      return trimmed !== '' && trimmed !== 'não informado' && trimmed !== 'nao informado';
+    };
+    return (reportA?.charts?.equipeDestino || [])
+      .filter((e) => isValidTeam(e.equipe))
+      .slice(0, 5);
+  }, [reportA]);
+
+  const topEquipesB = useMemo(() => {
+    const isValidTeam = (name?: string) => {
+      if (!name) return false;
+      const trimmed = name.trim().toLowerCase();
+      return trimmed !== '' && trimmed !== 'não informado' && trimmed !== 'nao informado';
+    };
+    return (reportB?.charts?.equipeDestino || [])
+      .filter((e) => isValidTeam(e.equipe))
+      .slice(0, 5);
+  }, [reportB]);
+
   return (
     <div
       className={
@@ -493,7 +695,7 @@ export default function CompareReportsView({
                   darkMode ? 'text-blue-400' : 'text-blue-600'
                 }`}>
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                  Relatório A (Base)
+                  Relatório A
                   {reportAMonth && (
                     <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${
                       darkMode ? 'bg-blue-950/80 text-blue-300 border-blue-800' : 'bg-blue-100 text-blue-800 border-blue-300'
@@ -550,7 +752,7 @@ export default function CompareReportsView({
                   darkMode ? 'text-orange-400' : 'text-orange-600'
                 }`}>
                   <span className="h-2 w-2 rounded-full bg-orange-500"></span>
-                  Relatório B (Comparado)
+                  Relatório B
                   {reportBMonth && (
                     <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${
                       darkMode ? 'bg-orange-950/80 text-orange-300 border-orange-800' : 'bg-orange-100 text-orange-800 border-orange-300'
@@ -595,7 +797,7 @@ export default function CompareReportsView({
             <span className={`font-bold text-xs ${
               darkMode ? 'text-white' : 'text-[#0F2D59]'
             }`}>
-              Comparação: {reportA.name} <span className="text-orange-500 font-normal">vs</span> {reportB.name}
+              Comparação: Relatório A{reportAMonth ? ` (${reportAMonth})` : ''} <span className="text-orange-500 font-normal">vs</span> Relatório B{reportBMonth ? ` (${reportBMonth})` : ''}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -654,7 +856,7 @@ export default function CompareReportsView({
                 <div className={`text-[11px] font-medium flex items-center justify-between ${
                   darkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>Base A: {reportA.metrics.totalEquipments}</span>
+                  <span>Relatório A: {reportA.metrics.totalEquipments}</span>
                 </div>
               </div>
               <div className={`text-[11px] font-bold flex items-center gap-1 ${
@@ -688,7 +890,7 @@ export default function CompareReportsView({
                 <div className={`text-[11px] font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>Base A: {reportA.metrics.taxaReaproveitamento}%</span>
+                  <span>Relatório A: {reportA.metrics.taxaReaproveitamento}%</span>
                 </div>
               </div>
               <div className={`text-[11px] font-bold flex items-center gap-1 ${
@@ -722,7 +924,7 @@ export default function CompareReportsView({
                 <div className={`text-[11px] font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>Base A: {reportA.metrics.taxaResolucaoOS}%</span>
+                  <span>Relatório A: {reportA.metrics.taxaResolucaoOS}%</span>
                 </div>
               </div>
               <div className={`text-[11px] font-bold flex items-center gap-1 ${
@@ -756,7 +958,7 @@ export default function CompareReportsView({
                 <div className={`text-[11px] font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>Base A: {reportA.metrics.taxaDescarte}%</span>
+                  <span>Relatório A: {reportA.metrics.taxaDescarte}%</span>
                 </div>
               </div>
               <div className={`text-[11px] font-bold flex items-center gap-1 ${
@@ -790,7 +992,7 @@ export default function CompareReportsView({
                 <div className={`text-[11px] font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>Base A: {reportA.metrics.taxaRma}%</span>
+                  <span>Relatório A: {reportA.metrics.taxaRma}%</span>
                 </div>
               </div>
               <div className={`text-[11px] font-bold flex items-center gap-1 ${
@@ -824,7 +1026,7 @@ export default function CompareReportsView({
                 <div className={`text-[11px] font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-500'
                 }`}>
-                  <span>Base A: {reportA.metrics.mediaDiaria}/dia</span>
+                  <span>Relatório A: {reportA.metrics.mediaDiaria}/dia</span>
                 </div>
               </div>
               <div className={`text-[11px] font-bold flex items-center gap-1 ${
@@ -1008,58 +1210,6 @@ export default function CompareReportsView({
                       {reportA.metrics.equipeMaisProdutiva === reportB.metrics.equipeMaisProdutiva ? 'Mesma Equipe' : 'Equipe Diferente'}
                     </td>
                   </tr>
-
-                  {/* Responsável Top */}
-                  <tr className={darkMode ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'}>
-                    <td className="p-3 font-semibold flex items-center gap-2">
-                      <Award className="h-3.5 w-3.5 text-amber-500" /> Responsável Técnico Líder
-                    </td>
-                    <td className={`p-3 font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                      {reportA.metrics.responsavelTop || 'N/A'} ({reportA.metrics.responsavelTopQtd} un)
-                    </td>
-                    <td className={`p-3 font-medium ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                      {reportB.metrics.responsavelTop || 'N/A'} ({reportB.metrics.responsavelTopQtd} un)
-                    </td>
-                    <td className={`p-3 text-right text-[11px] font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                      {reportA.metrics.responsavelTop === reportB.metrics.responsavelTop ? 'Mesmo Técnico' : 'Técnico Diferente'}
-                    </td>
-                  </tr>
-
-                  {/* Risco Operacional */}
-                  <tr className={darkMode ? 'hover:bg-slate-800/30' : 'hover:bg-slate-50'}>
-                    <td className="p-3 font-semibold flex items-center gap-2">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Risco Operacional Global
-                    </td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        reportA.metrics.indiceRiscoStatus === 'OK'
-                          ? (darkMode ? 'bg-emerald-950 text-emerald-400' : 'bg-emerald-100 text-emerald-800')
-                          : reportA.metrics.indiceRiscoStatus === 'ATENÇÃO'
-                          ? (darkMode ? 'bg-amber-950 text-amber-400' : 'bg-amber-100 text-amber-800')
-                          : (darkMode ? 'bg-rose-950 text-rose-400' : 'bg-rose-100 text-rose-800')
-                      }`}>
-                        {reportA.metrics.indiceRiscoStatus} ({reportA.metrics.indiceRiscoOperacional} pts)
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        reportB.metrics.indiceRiscoStatus === 'OK'
-                          ? (darkMode ? 'bg-emerald-950 text-emerald-400' : 'bg-emerald-100 text-emerald-800')
-                          : reportB.metrics.indiceRiscoStatus === 'ATENÇÃO'
-                          ? (darkMode ? 'bg-amber-950 text-amber-400' : 'bg-amber-100 text-amber-800')
-                          : (darkMode ? 'bg-rose-950 text-rose-400' : 'bg-rose-100 text-rose-800')
-                      }`}>
-                        {reportB.metrics.indiceRiscoStatus} ({reportB.metrics.indiceRiscoOperacional} pts)
-                      </span>
-                    </td>
-                    <td className="p-3 text-right text-[11px] font-mono font-semibold">
-                      {reportB.metrics.indiceRiscoOperacional <= reportA.metrics.indiceRiscoOperacional ? (
-                        <span className={darkMode ? 'text-emerald-400' : 'text-emerald-600'}>Risco Estável / Reduzido</span>
-                      ) : (
-                        <span className={darkMode ? 'text-rose-400' : 'text-rose-600'}>Risco Elevado</span>
-                      )}
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -1076,20 +1226,21 @@ export default function CompareReportsView({
                 }`}>
                   Comparação Direta de Destinos Finais (Unidades)
                 </h3>
-                <p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Volume de equipamentos por categoria de desfecho entre Relatório A e Relatório B.
-                </p>
               </div>
-              <div className={`flex items-center gap-4 text-xs font-semibold ${
+              <div className={`flex flex-wrap items-center gap-4 text-xs font-semibold ${
                 darkMode ? 'text-slate-200' : 'text-slate-800'
               }`}>
                 <div className="flex items-center gap-1.5">
-                  <span className="h-3 w-3 rounded-sm bg-blue-500"></span>
-                  <span>A: {reportA.name}</span>
+                  <span className="h-3 w-3 rounded-sm bg-blue-500 shrink-0"></span>
+                  <span>
+                    Relatório A: {reportAMonth ? `(${reportAMonth})` : reportA.periodStart ? `(${reportA.periodStart})` : ''}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="h-3 w-3 rounded-sm bg-orange-500"></span>
-                  <span>B: {reportB.name}</span>
+                  <span className="h-3 w-3 rounded-sm bg-orange-500 shrink-0"></span>
+                  <span>
+                    Relatório B: {reportBMonth ? `(${reportBMonth})` : reportB.periodStart ? `(${reportB.periodStart})` : ''}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1123,13 +1274,13 @@ export default function CompareReportsView({
                   />
                   <Bar
                     dataKey="unidadesA"
-                    name={`A: ${reportA.name || 'Relatório A'}`}
+                    name={`Relatório A: ${reportAMonth ? `(${reportAMonth})` : reportA.periodStart ? `(${reportA.periodStart})` : ''}`}
                     fill="#3B82F6"
                     radius={[4, 4, 0, 0]}
                   />
                   <Bar
                     dataKey="unidadesB"
-                    name={`B: ${reportB.name || 'Relatório B'}`}
+                    name={`Relatório B: ${reportBMonth ? `(${reportBMonth})` : reportB.periodStart ? `(${reportB.periodStart})` : ''}`}
                     fill="#F97316"
                     radius={[4, 4, 0, 0]}
                   />
@@ -1152,8 +1303,15 @@ export default function CompareReportsView({
                   <h4 className={`font-display font-bold text-sm ${
                     darkMode ? 'text-blue-300' : 'text-[#0F2D59]'
                   }`}>
-                    {reportA.name}
+                    Relatório A
                   </h4>
+                  {reportAMonth && (
+                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${
+                      darkMode ? 'bg-blue-950/80 text-blue-300 border-blue-800' : 'bg-blue-100 text-blue-800 border-blue-300'
+                    }`}>
+                      {reportAMonth}
+                    </span>
+                  )}
                 </div>
                 <span className={`text-xs font-mono font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
@@ -1162,60 +1320,286 @@ export default function CompareReportsView({
                 </span>
               </div>
 
-              {/* Top 5 Modelos A */}
+              {/* Top Modelos A */}
               <div>
-                <span className={`text-xs font-bold uppercase tracking-wider mb-2 block ${
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
-                  Top 5 Modelos Analisados
+                  <Box className="h-3.5 w-3.5 text-blue-500" />
+                  Top Modelos Analisados
                 </span>
                 <div className="flex flex-col gap-2">
-                  {reportA.charts.top10Modelos?.slice(0, 5).map((m, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center justify-between text-xs p-2.5 rounded-lg border transition-colors ${
-                        darkMode
-                          ? 'bg-slate-900/60 border-slate-800 text-slate-200'
-                          : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
-                    >
-                      <span className="font-semibold truncate max-w-[200px]">{m.name}</span>
-                      <span className={`font-mono font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                        {m.qtd} un
-                      </span>
+                  {alignedModelos.length > 0 ? (
+                    alignedModelos.map((m, idx) =>
+                      m.countA > 0 ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[200px]" title={m.name}>
+                            {m.name}
+                          </span>
+                          <span className={`font-mono font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                            {m.countA} un
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhum modelo registrado
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
-              {/* Top 5 Cidades A */}
+              {/* Top Cidades A */}
               <div>
-                <span className={`text-xs font-bold uppercase tracking-wider mb-2 block ${
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
+                  <MapPin className="h-3.5 w-3.5 text-indigo-500" />
                   Desempenho por Cidade (Reap + RMA)
                 </span>
                 <div className="flex flex-col gap-2">
-                  {reportA.charts.cidadeDestino?.slice(0, 5).map((c, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center justify-between text-xs p-2.5 rounded-lg border transition-colors ${
-                        darkMode
-                          ? 'bg-slate-900/60 border-slate-800 text-slate-200'
-                          : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
-                    >
-                      <span className="font-semibold">{c.cidade}</span>
-                      <div className="flex items-center gap-3">
-                        <span className={`font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                          {c.equip} un
-                        </span>
-                        <span className={`font-mono font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                          {c.taxaResol}%
-                        </span>
-                      </div>
+                  {alignedCidades.length > 0 ? (
+                    alignedCidades.map((c, idx) =>
+                      c.itemA ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[180px]" title={c.cidade}>
+                            {c.cidade}
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={`font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                              {c.itemA.equip} un
+                            </span>
+                            <span className={`font-mono font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                              {c.itemA.taxaResol}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhuma cidade registrada
                     </div>
-                  ))}
+                  )}
+                </div>
+              </div>
+
+              {/* Principais Motivos de Defeito A */}
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>
+                  <Wrench className="h-3.5 w-3.5 text-amber-500" />
+                  Principais Motivos de Defeito
+                </span>
+                <div className="flex flex-col gap-2">
+                  {alignedDefeitos.length > 0 ? (
+                    alignedDefeitos.map((d, idx) =>
+                      d.countA > 0 ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[200px]" title={d.name}>
+                            {d.name}
+                          </span>
+                          <span className={`font-mono font-bold ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                            {d.countA} un
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhum motivo de defeito registrado
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Principais Motivos de Descarte A */}
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>
+                  <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                  Principais Motivos de Descarte
+                </span>
+                <div className="flex flex-col gap-2">
+                  {alignedDescartes.length > 0 ? (
+                    alignedDescartes.map((d, idx) =>
+                      d.countA > 0 ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[200px]" title={d.name}>
+                            {d.name}
+                          </span>
+                          <span className={`font-mono font-bold ${darkMode ? 'text-rose-400' : 'text-rose-600'}`}>
+                            {d.countA} un
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhum motivo de descarte registrado
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Top 5 Equipes A */}
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>
+                  <Users className="h-3.5 w-3.5 text-cyan-500" />
+                  Top 5 Equipes (Reap + RMA)
+                </span>
+                <div className="flex flex-col gap-2">
+                  {topEquipesA.length > 0 ? (
+                    Array.from({ length: 5 }).map((_, idx) => {
+                      const e = topEquipesA[idx];
+                      return e ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <span className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                              darkMode ? 'bg-slate-800 text-cyan-400' : 'bg-cyan-100 text-cyan-700'
+                            }`}>
+                              {idx + 1}
+                            </span>
+                            <span className="font-semibold truncate" title={e.equipe}>
+                              {e.equipe}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className={`font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                              {e.equip} un
+                            </span>
+                            <span className={`font-mono font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                              {e.taxaResol}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhuma equipe registrada
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1232,8 +1616,15 @@ export default function CompareReportsView({
                   <h4 className={`font-display font-bold text-sm ${
                     darkMode ? 'text-orange-300' : 'text-[#0F2D59]'
                   }`}>
-                    {reportB.name}
+                    Relatório B
                   </h4>
+                  {reportBMonth && (
+                    <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${
+                      darkMode ? 'bg-orange-950/80 text-orange-300 border-orange-800' : 'bg-orange-100 text-orange-800 border-orange-300'
+                    }`}>
+                      {reportBMonth}
+                    </span>
+                  )}
                 </div>
                 <span className={`text-xs font-mono font-medium ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
@@ -1242,60 +1633,286 @@ export default function CompareReportsView({
                 </span>
               </div>
 
-              {/* Top 5 Modelos B */}
+              {/* Top Modelos B */}
               <div>
-                <span className={`text-xs font-bold uppercase tracking-wider mb-2 block ${
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
-                  Top 5 Modelos Analisados
+                  <Box className="h-3.5 w-3.5 text-blue-500" />
+                  Top Modelos Analisados
                 </span>
                 <div className="flex flex-col gap-2">
-                  {reportB.charts.top10Modelos?.slice(0, 5).map((m, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center justify-between text-xs p-2.5 rounded-lg border transition-colors ${
-                        darkMode
-                          ? 'bg-slate-900/60 border-slate-800 text-slate-200'
-                          : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
-                    >
-                      <span className="font-semibold truncate max-w-[200px]">{m.name}</span>
-                      <span className={`font-mono font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
-                        {m.qtd} un
-                      </span>
+                  {alignedModelos.length > 0 ? (
+                    alignedModelos.map((m, idx) =>
+                      m.countB > 0 ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[200px]" title={m.name}>
+                            {m.name}
+                          </span>
+                          <span className={`font-mono font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                            {m.countB} un
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhum modelo registrado
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
-              {/* Top 5 Cidades B */}
+              {/* Top Cidades B */}
               <div>
-                <span className={`text-xs font-bold uppercase tracking-wider mb-2 block ${
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
                   darkMode ? 'text-slate-400' : 'text-slate-600'
                 }`}>
+                  <MapPin className="h-3.5 w-3.5 text-indigo-500" />
                   Desempenho por Cidade (Reap + RMA)
                 </span>
                 <div className="flex flex-col gap-2">
-                  {reportB.charts.cidadeDestino?.slice(0, 5).map((c, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center justify-between text-xs p-2.5 rounded-lg border transition-colors ${
-                        darkMode
-                          ? 'bg-slate-900/60 border-slate-800 text-slate-200'
-                          : 'bg-slate-50 border-slate-200 text-slate-900'
-                      }`}
-                    >
-                      <span className="font-semibold">{c.cidade}</span>
-                      <div className="flex items-center gap-3">
-                        <span className={`font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                          {c.equip} un
-                        </span>
-                        <span className={`font-mono font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                          {c.taxaResol}%
-                        </span>
-                      </div>
+                  {alignedCidades.length > 0 ? (
+                    alignedCidades.map((c, idx) =>
+                      c.itemB ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[180px]" title={c.cidade}>
+                            {c.cidade}
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className={`font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                              {c.itemB.equip} un
+                            </span>
+                            <span className={`font-mono font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                              {c.itemB.taxaResol}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhuma cidade registrada
                     </div>
-                  ))}
+                  )}
+                </div>
+              </div>
+
+              {/* Principais Motivos de Defeito B */}
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>
+                  <Wrench className="h-3.5 w-3.5 text-amber-500" />
+                  Principais Motivos de Defeito
+                </span>
+                <div className="flex flex-col gap-2">
+                  {alignedDefeitos.length > 0 ? (
+                    alignedDefeitos.map((d, idx) =>
+                      d.countB > 0 ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[200px]" title={d.name}>
+                            {d.name}
+                          </span>
+                          <span className={`font-mono font-bold ${darkMode ? 'text-amber-400' : 'text-amber-600'}`}>
+                            {d.countB} un
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhum motivo de defeito registrado
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Principais Motivos de Descarte B */}
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>
+                  <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+                  Principais Motivos de Descarte
+                </span>
+                <div className="flex flex-col gap-2">
+                  {alignedDescartes.length > 0 ? (
+                    alignedDescartes.map((d, idx) =>
+                      d.countB > 0 ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <span className="font-semibold truncate max-w-[200px]" title={d.name}>
+                            {d.name}
+                          </span>
+                          <span className={`font-mono font-bold ${darkMode ? 'text-rose-400' : 'text-rose-600'}`}>
+                            {d.countB} un
+                          </span>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      )
+                    )
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhum motivo de descarte registrado
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Top 5 Equipes B */}
+              <div>
+                <span className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 h-5 ${
+                  darkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>
+                  <Users className="h-3.5 w-3.5 text-cyan-500" />
+                  Top 5 Equipes (Reap + RMA)
+                </span>
+                <div className="flex flex-col gap-2">
+                  {topEquipesB.length > 0 ? (
+                    Array.from({ length: 5 }).map((_, idx) => {
+                      const e = topEquipesB[idx];
+                      return e ? (
+                        <div
+                          key={idx}
+                          className={`h-[38px] flex items-center justify-between text-xs px-2.5 rounded-lg border transition-colors ${
+                            darkMode
+                              ? 'bg-slate-900/60 border-slate-800 text-slate-200'
+                              : 'bg-slate-50 border-slate-200 text-slate-900'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <span className={`w-5 h-5 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                              darkMode ? 'bg-slate-800 text-cyan-400' : 'bg-cyan-100 text-cyan-700'
+                            }`}>
+                              {idx + 1}
+                            </span>
+                            <span className="font-semibold truncate" title={e.equipe}>
+                              {e.equipe}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <span className={`font-mono font-medium ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                              {e.equip} un
+                            </span>
+                            <span className={`font-mono font-bold ${darkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                              {e.taxaResol}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          key={`empty-${idx}`}
+                          className={`h-[38px] rounded-lg border border-dashed flex items-center px-2.5 transition-colors ${
+                            darkMode
+                              ? 'border-slate-800/40 bg-slate-900/10'
+                              : 'border-slate-200/50 bg-slate-50/30'
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <span className="text-[11px] font-mono text-slate-500/40 dark:text-slate-600/40 select-none">
+                            —
+                          </span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className={`text-xs italic p-3 rounded-lg border text-center ${
+                      darkMode ? 'border-slate-800 text-slate-500 bg-slate-900/30' : 'border-slate-200 text-slate-400 bg-slate-50'
+                    }`}>
+                      Nenhuma equipe registrada
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1419,7 +2036,7 @@ export default function CompareReportsView({
               <div className="bg-blue-600 text-white p-2.5 sm:p-3 px-3 sm:px-4 flex items-center justify-between text-xs shrink-0 gap-2 shadow-xs">
                 <div className="flex items-center gap-2 truncate min-w-0">
                   <span className="font-black px-1.5 py-0.5 rounded bg-blue-800 text-white text-[10px] shrink-0">A</span>
-                  <span className="font-bold truncate">{reportA.name}</span>
+                  <span className="font-bold truncate">Relatório A</span>
                   {reportAMonth && (
                     <span className="bg-blue-800/90 text-blue-100 border border-blue-400/50 px-2 py-0.5 rounded font-extrabold text-[11px] shrink-0 tracking-wide shadow-xs">
                       {reportAMonth}
@@ -1458,7 +2075,7 @@ export default function CompareReportsView({
               <div className="bg-orange-600 text-white p-2.5 sm:p-3 px-3 sm:px-4 flex items-center justify-between text-xs shrink-0 gap-2 shadow-xs">
                 <div className="flex items-center gap-2 truncate min-w-0">
                   <span className="font-black px-1.5 py-0.5 rounded bg-orange-800 text-white text-[10px] shrink-0">B</span>
-                  <span className="font-bold truncate">{reportB.name}</span>
+                  <span className="font-bold truncate">Relatório B</span>
                   {reportBMonth && (
                     <span className="bg-orange-800/90 text-orange-100 border border-orange-300/50 px-2 py-0.5 rounded font-extrabold text-[11px] shrink-0 tracking-wide shadow-xs">
                       {reportBMonth}
